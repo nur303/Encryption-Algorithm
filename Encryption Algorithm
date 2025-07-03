@@ -344,3 +344,150 @@ class Scoring:
             print(f"\nAverage score: {sum(scores) / len(scores)}")
         except Exception as e:
             print(f"An error occurred while printing the results: {e}")
+##**Encryption & Decryption Class**
+
+
+class Cipher:
+    """
+    The Cipher class handles the encryption and decryption of strings using a custom
+    cipher.
+
+    Attributes:
+        original_string (str): The original string that will be encrypted.
+        encrypted_string (str): The encrypted string after encryption.
+    """
+
+    def __init__(self, original_string: str) -> None:
+        """
+        The constructor for the Cipher class.
+
+        Parameters:
+            original_string (str): The original string that will be encrypted.
+        """
+        self.original_string = original_string
+        self.encrypted_string = ""
+
+    def encrypt(self) -> None:
+        """
+        Encrypts the original string by swapping each character with a character a fixed
+        number of places down the alphabet.
+        """
+        # Encrypt the string
+        self.encrypted_string = self.original_string[::-1]
+
+    def decrypt(self) -> str:
+        """
+        Decrypts the encrypted string by swapping each character with a character a fixed
+        number of places up the alphabet.
+
+        Returns:
+            str: The decrypted string.
+        """
+        # Decrypt the string
+        return self.encrypted_string[::-1]
+#Main
+
+
+def main(max_length_multiplier: float):
+    """
+    The main function that tests the Cipher and Scoring classes.
+
+    Parameters:
+        max_length_multiplier (float): The maximum allowed ratio of the length of the encrypted string
+                                       to the length of the original string.
+    """
+    # Ensure the maximum length multiplier is a positive number
+    assert max_length_multiplier > 0, "Maximum length multiplier must be a positive number"
+
+    # Define the sample strings
+    sample_strings = [
+        "Hello, World!",
+        "This is a sample string",
+        "Another string for testing",
+        "A very very long string that should result in a high score",
+        "Short string",
+        "abcdefghijklmnopqrstuvwxyz",
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        "1234567890",
+        "A string with special characters: !@#$%^&*()",
+        "A string with spaces    between     words",
+        "A string with a mix of letters, numbers, and special characters: abc123!@#"
+        "    ",  # Only spaces
+        "TheQuickBrownFoxJumpsOverTheLazyDog",  # Pangram
+        "!@#$%^&*()_+{}:\"<>?[];',./~",  # Special characters
+        "1234567890",  # Numbers
+        "P@ssw0rd!",  # Common password format
+        "A_B_C_D_E_F_G",  # Underscores between letters
+        "A   B   C   D",  # Multiple spaces between letters
+        "`~!@#$%^&*()-_=+[{]}\|;:'\",<.>/?",  # All special characters
+        "A"*10 + "B"*5,  # Repeating characters
+        "MixOfUPPERandlowerCASE",  # Mixed case
+        "°º•¤ª«µ¸",  # Miscellaneous symbols
+        "A sentence with a mix of numbers 12345 and special characters !@#",
+        "This string ends with spaces     ",  # Trailing spaces
+        "     This string starts with spaces",  # Leading spaces
+        "1234"*5,  # Repeated pattern
+        "This is a very long string used to test encryption. It includes various characters, numbers 12345, and special symbols !@#$%^&*() as well as mixed case letters.",
+        "!\"#$%&'()*+,-./:;<=>?@[\]^_`{|}~",  # ASCII punctuation
+    ]
+
+
+    # Define the weights for each metric
+    weights = {
+        "unique_chars": 0.1,
+        "distinct_sequences": 1.0,
+        "entropy": 1.5,
+        "frequency_analysis": 0.1,
+        "length_consistency": 0.5,
+        "evenness": 1.2,
+        "reversibility": 2.0,
+        "change_propagation": 1.5,
+        "pattern_analysis": 1.5,
+        "correlation_analysis": 1.5,
+        "complexity": 1.0,
+        "randomness": 1.5,
+        "normalized_levenshtein": 1.0,
+        "encryption_consistency": 2.0,  # High weight as this is critical
+        "running_time": 0.5
+    }
+
+
+    print("\n********** Cipher Testing **********")
+    scores = []
+    table_data = []
+
+    for i, original_string in enumerate(sample_strings, start=1):
+        # Create a Cipher instance and encrypt the string
+        cipher = Cipher(original_string)
+
+        # Start the timer
+        start_time = time.time()
+
+        cipher.encrypt()
+
+        # End the timer
+        end_time = time.time()
+
+        # Calculate the running time
+        running_time = end_time - start_time
+
+        # Create a Scoring instance and calculate the score
+        scoring = Scoring(cipher, running_time, weights, max_length_multiplier)
+        scores.append(scoring.score)
+
+        # Decrypt the string and verify it's the same as the original
+        decrypted_string = cipher.decrypt()
+        decryption_success = decrypted_string == original_string
+
+        # Add the results to the table data
+        table_data.append([
+            i, original_string, cipher.encrypted_string,
+            decrypted_string, decryption_success, scoring.score, running_time
+        ])
+
+    Scoring.print_results(table_data, scores)
+    print("\n********** Testing Complete **********\n")
+
+if __name__ == "__main__":
+
+    main(2.0)  # Maximum length multiplier is set to twice the length of the original string
